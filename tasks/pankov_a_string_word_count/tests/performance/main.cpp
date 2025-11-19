@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 
-#include "example_processes/common/include/common.hpp"
-#include "example_processes/mpi/include/ops_mpi.hpp"
-#include "example_processes/seq/include/ops_seq.hpp"
+#include "pankov_a_string_word_count/common/include/common.hpp"
+#include "pankov_a_string_word_count/mpi/include/ops_mpi.hpp"
+#include "pankov_a_string_word_count/seq/include/ops_seq.hpp"
 #include "util/include/perf_test_util.hpp"
 
 namespace pankov_a_string_word_count {
 
-class PankovARunPerfTestProcesses : public ppc::util::BaseRunPerfTests<InType, OutType> {
+class ExampleRunPerfTestProcesses : public ppc::util::BaseRunPerfTests<InType, OutType> {
   const int kCount_ = 100;
   InType input_data_{};
 
@@ -24,17 +24,17 @@ class PankovARunPerfTestProcesses : public ppc::util::BaseRunPerfTests<InType, O
   }
 };
 
-TEST_P(PankovARunPerfTestProcesses, RunPerfModes) {
+TEST_P(ExampleRunPerfTestProcesses, RunPerfModes) {
   ExecuteTest(GetParam());
 }
 
 const auto kAllPerfTasks =
-    ppc::util::MakeAllPerfTasks<InType, PankovAStringWordCount, PankovAStringWordCountSEQ>(PPC_SETTINGS_example_processes);
+    ppc::util::MakeAllPerfTasks<InType, PankovAStringWordCountMPI, PankovAStringWordCountSEQ>(PPC_SETTINGS_example_processes);
 
 const auto kGtestValues = ppc::util::TupleToGTestValues(kAllPerfTasks);
 
-const auto kPerfTestName = PankovARunPerfTestProcesses::CustomPerfTestName;
+const auto kPerfTestName = ExampleRunPerfTestProcesses::CustomPerfTestName;
 
-INSTANTIATE_TEST_SUITE_P(RunModeTests, PankovARunPerfTestProcesses, kGtestValues, kPerfTestName);
+INSTANTIATE_TEST_SUITE_P(RunModeTests, ExampleRunPerfTestProcesses, kGtestValues, kPerfTestName);
 
-}  // namespace nesterov_a_test_task_processes
+}  // namespace pankov_a_string_word_count

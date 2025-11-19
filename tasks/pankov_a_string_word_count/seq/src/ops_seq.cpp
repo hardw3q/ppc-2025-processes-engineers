@@ -1,9 +1,9 @@
-#include "example_processes/seq/include/ops_seq.hpp"
+#include "pankov_a_string_word_count/seq/include/ops_seq.hpp"
 
 #include <numeric>
 #include <vector>
 
-#include "example_processes/common/include/common.hpp"
+#include "pankov_a_string_word_count/common/include/common.hpp"
 #include "util/include/util.hpp"
 
 namespace pankov_a_string_word_count {
@@ -57,4 +57,4 @@ bool PankovAStringWordCountSEQ::PostProcessingImpl() {
   return GetOutput() > 0;
 }
 
-}  // namespace nesterov_a_test_task_processes
+}  // namespace pankov_a_string_word_count

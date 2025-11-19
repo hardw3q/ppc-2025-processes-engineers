@@ -1,6 +1,6 @@
 #pragma once
 
-#include "example_processes/common/include/common.hpp"
+#include "pankov_a_string_word_count/common/include/common.hpp"
 #include "task/include/task.hpp"
 
 namespace pankov_a_string_word_count {
@@ -19,4 +19,4 @@ class PankovAStringWordCountSEQ : public BaseTask {
   bool PostProcessingImpl() override;
 };
 
-}  // namespace nesterov_a_test_task_processes
+}  // namespace pankov_a_string_word_count

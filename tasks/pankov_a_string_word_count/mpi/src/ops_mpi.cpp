@@ -1,31 +1,31 @@
-#include "example_processes/mpi/include/ops_mpi.hpp"
+#include "pankov_a_string_word_count/mpi/include/ops_mpi.hpp"
 
 #include <mpi.h>
 
 #include <numeric>
 #include <vector>
 
-#include "example_processes/common/include/common.hpp"
+#include "pankov_a_string_word_count/common/include/common.hpp"
 #include "util/include/util.hpp"
 
 namespace pankov_a_string_word_count {
 
-PankovAStringWordCount::PankovAStringWordCount(const InType &in) {
+PankovAStringWordCountMPI::PankovAStringWordCountMPI(const InType &in) {
   SetTypeOfTask(GetStaticTypeOfTask());
   GetInput() = in;
   GetOutput() = 0;
 }
 
-bool PankovAStringWordCount::ValidationImpl() {
+bool PankovAStringWordCountMPI::ValidationImpl() {
   return (GetInput() > 0) && (GetOutput() == 0);
 }
 
-bool PankovAStringWordCount::PreProcessingImpl() {
+bool PankovAStringWordCountMPI::PreProcessingImpl() {
   GetOutput() = 2 * GetInput();
   return GetOutput() > 0;
 }
 
-bool PankovAStringWordCount::RunImpl() {
+bool PankovAStringWordCountMPI::RunImpl() {
   auto input = GetInput();
   if (input == 0) {
     return false;
@@ -64,9 +64,9 @@ bool PankovAStringWordCount::RunImpl() {
   return GetOutput() > 0;
 }
 
-bool PankovAStringWordCount::PostProcessingImpl() {
+bool PankovAStringWordCountMPI::PostProcessingImpl() {
   GetOutput() -= GetInput();
   return GetOutput() > 0;
 }
 
-}  // namespace nesterov_a_test_task_processes
+}  // namespace pankov_a_string_word_count

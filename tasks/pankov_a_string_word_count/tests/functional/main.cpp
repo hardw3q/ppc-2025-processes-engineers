@@ -12,15 +12,15 @@
 #include <utility>
 #include <vector>
 
-#include "example_processes/common/include/common.hpp"
-#include "example_processes/mpi/include/ops_mpi.hpp"
-#include "example_processes/seq/include/ops_seq.hpp"
+#include "pankov_a_string_word_count/common/include/common.hpp"
+#include "pankov_a_string_word_count/mpi/include/ops_mpi.hpp"
+#include "pankov_a_string_word_count/seq/include/ops_seq.hpp"
 #include "util/include/func_test_util.hpp"
 #include "util/include/util.hpp"
 
 namespace pankov_a_string_word_count {
 
-class PankovARunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType, OutType, TestType> {
+class NesterovARunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType, OutType, TestType> {
  public:
   static std::string PrintTestParam(const TestType &test_param) {
     return std::to_string(std::get<0>(test_param)) + "_" + std::get<1>(test_param);
@@ -65,22 +65,22 @@ class PankovARunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType, 
 
 namespace {
 
-TEST_P(PankovARunFuncTestsProcesses, MatmulFromPic) {
+TEST_P(NesterovARunFuncTestsProcesses, MatmulFromPic) {
   ExecuteTest(GetParam());
 }
 
 const std::array<TestType, 3> kTestParam = {std::make_tuple(3, "3"), std::make_tuple(5, "5"), std::make_tuple(7, "7")};
 
 const auto kTestTasksList =
-    std::tuple_cat(ppc::util::AddFuncTask<PankovAStringWordCount, InType>(kTestParam, PPC_SETTINGS_example_processes),
+    std::tuple_cat(ppc::util::AddFuncTask<PankovAStringWordCountMPI, InType>(kTestParam, PPC_SETTINGS_example_processes),
                    ppc::util::AddFuncTask<PankovAStringWordCountSEQ, InType>(kTestParam, PPC_SETTINGS_example_processes));
 
 const auto kGtestValues = ppc::util::ExpandToValues(kTestTasksList);
 
-const auto kPerfTestName = PankovARunFuncTestsProcesses::PrintFuncTestName<PankovARunFuncTestsProcesses>;
+const auto kPerfTestName = NesterovARunFuncTestsProcesses::PrintFuncTestName<NesterovARunFuncTestsProcesses>;
 
-INSTANTIATE_TEST_SUITE_P(PicMatrixTests, PankovARunFuncTestsProcesses, kGtestValues, kPerfTestName);
+INSTANTIATE_TEST_SUITE_P(PicMatrixTests, NesterovARunFuncTestsProcesses, kGtestValues, kPerfTestName);
 
 }  // namespace
 
-}  // namespace nesterov_a_test_task_processes
+}  // namespace pankov_a_string_word_count
