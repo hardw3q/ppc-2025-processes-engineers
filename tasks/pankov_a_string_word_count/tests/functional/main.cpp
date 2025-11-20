@@ -1,16 +1,9 @@
 #include <gtest/gtest.h>
-#include <stb/stb_image.h>
 
-#include <algorithm>
 #include <array>
-#include <cstddef>
-#include <cstdint>
-#include <numeric>
-#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <utility>
-#include <vector>
 
 #include "pankov_a_string_word_count/common/include/common.hpp"
 #include "pankov_a_string_word_count/mpi/include/ops_mpi.hpp"
@@ -20,39 +13,30 @@
 
 namespace pankov_a_string_word_count {
 
-class NesterovARunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType, OutType, TestType> {
+using LocalTestType = std::tuple<InType, OutType>;
+
+
+class PankovARunFuncTestsProcesses
+    : public ppc::util::BaseRunFuncTests<InType, OutType, LocalTestType> {
  public:
-  static std::string PrintTestParam(const TestType &test_param) {
-    return std::to_string(std::get<0>(test_param)) + "_" + std::get<1>(test_param);
+  static std::string PrintTestParam(const LocalTestType &test_param) {
+    const auto &input  = std::get<0>(test_param);
+    const auto &expect = std::get<1>(test_param);
+    return input + "_expect_" + std::to_string(expect);
   }
 
  protected:
   void SetUp() override {
-    int width = -1;
-    int height = -1;
-    int channels = -1;
-    std::vector<uint8_t> img;
-    // Read image in RGB to ensure consistent channel count
-    {
-      std::string abs_path = ppc::util::GetAbsoluteTaskPath(PPC_ID_example_processes, "pic.jpg");
-      auto *data = stbi_load(abs_path.c_str(), &width, &height, &channels, STBI_rgb);
-      if (data == nullptr) {
-        throw std::runtime_error("Failed to load image: " + std::string(stbi_failure_reason()));
-      }
-      channels = STBI_rgb;
-      img = std::vector<uint8_t>(data, data + (static_cast<ptrdiff_t>(width * height * channels)));
-      stbi_image_free(data);
-      if (std::cmp_not_equal(width, height)) {
-        throw std::runtime_error("width != height: ");
-      }
-    }
+    LocalTestType params =
+        std::get<static_cast<std::size_t>(ppc::util::GTestParamIndex::kTestParams)>(
+            this->GetParam());
 
-    TestType params = std::get<static_cast<std::size_t>(ppc::util::GTestParamIndex::kTestParams)>(GetParam());
-    input_data_ = width - height + std::min(std::accumulate(img.begin(), img.end(), 0), channels);
+    input_data_      = std::get<0>(params);
+    expected_output_ = std::get<1>(params);
   }
 
   bool CheckTestOutputData(OutType &output_data) final {
-    return (input_data_ == output_data);
+    return output_data == expected_output_;
   }
 
   InType GetTestInputData() final {
@@ -60,26 +44,40 @@ class NesterovARunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType
   }
 
  private:
-  InType input_data_ = 0;
+  InType  input_data_{};
+  OutType expected_output_{0};
 };
 
 namespace {
 
-TEST_P(NesterovARunFuncTestsProcesses, MatmulFromPic) {
+const std::array<LocalTestType, 6> kTestParam = {
+    LocalTestType{InType(""), 0},
+    LocalTestType{InType("hello"), 1},
+    LocalTestType{InType("hello world"), 2},
+    LocalTestType{InType("  many   spaces   here  "), 3},
+    LocalTestType{InType("one\ntwo\tthree"), 3},
+    LocalTestType{InType("  mix of \n spaces\tand words  "), 5},
+};
+
+TEST_P(PankovARunFuncTestsProcesses, StringWordCount) {
   ExecuteTest(GetParam());
 }
 
-const std::array<TestType, 3> kTestParam = {std::make_tuple(3, "3"), std::make_tuple(5, "5"), std::make_tuple(7, "7")};
-
 const auto kTestTasksList =
-    std::tuple_cat(ppc::util::AddFuncTask<PankovAStringWordCountMPI, InType>(kTestParam, PPC_SETTINGS_example_processes),
-                   ppc::util::AddFuncTask<PankovAStringWordCountSEQ, InType>(kTestParam, PPC_SETTINGS_example_processes));
+    std::tuple_cat(
+        ppc::util::AddFuncTask<PankovAStringWordCountMPI, InType>(
+            kTestParam, PPC_SETTINGS_example_processes),
+        ppc::util::AddFuncTask<PankovAStringWordCountSEQ, InType>(
+            kTestParam, PPC_SETTINGS_example_processes));
 
-const auto kGtestValues = ppc::util::ExpandToValues(kTestTasksList);
+const auto kGtestValues  = ppc::util::ExpandToValues(kTestTasksList);
+const auto kFuncTestName =
+    PankovARunFuncTestsProcesses::PrintFuncTestName<PankovARunFuncTestsProcesses>;
 
-const auto kPerfTestName = NesterovARunFuncTestsProcesses::PrintFuncTestName<NesterovARunFuncTestsProcesses>;
-
-INSTANTIATE_TEST_SUITE_P(PicMatrixTests, NesterovARunFuncTestsProcesses, kGtestValues, kPerfTestName);
+INSTANTIATE_TEST_SUITE_P(WordCountTests,
+                         PankovARunFuncTestsProcesses,
+                         kGtestValues,
+                         kFuncTestName);
 
 }  // namespace
 

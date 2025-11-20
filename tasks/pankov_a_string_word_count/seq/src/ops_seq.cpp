@@ -15,46 +15,41 @@ PankovAStringWordCountSEQ::PankovAStringWordCountSEQ(const InType &in) {
 }
 
 bool PankovAStringWordCountSEQ::ValidationImpl() {
-  return (GetInput() > 0) && (GetOutput() == 0);
+  return GetOutput() == 0;
 }
 
 bool PankovAStringWordCountSEQ::PreProcessingImpl() {
-  GetOutput() = 2 * GetInput();
-  return GetOutput() > 0;
+  GetOutput() = 0;
+  return true;
 }
 
-bool PankovAStringWordCountSEQ::RunImpl() {
-  if (GetInput() == 0) {
-    return false;
-  }
+static OutType CountWordsInString(const std::string& s) {
+  int count = 0;
+  bool in_word = false;
 
-  for (InType i = 0; i < GetInput(); i++) {
-    for (InType j = 0; j < GetInput(); j++) {
-      for (InType k = 0; k < GetInput(); k++) {
-        std::vector<InType> tmp(i + j + k, 1);
-        GetOutput() += std::accumulate(tmp.begin(), tmp.end(), 0);
-        GetOutput() -= i + j + k;
+  for (unsigned char uc : s) {
+    if (!std::isspace(uc)) {
+      if (!in_word) {
+        in_word = true;
+        ++count;
       }
+    } else {
+      in_word = false;
     }
   }
 
-  const int num_threads = ppc::util::GetNumThreads();
-  GetOutput() *= num_threads;
-
-  int counter = 0;
-  for (int i = 0; i < num_threads; i++) {
-    counter++;
-  }
-
-  if (counter != 0) {
-    GetOutput() /= counter;
-  }
-  return GetOutput() > 0;
+  return count;
 }
 
+bool PankovAStringWordCountSEQ::RunImpl() {
+  const std::string& s = GetInput();
+  GetOutput() = CountWordsInString(s);
+  return true;
+}
+
+
 bool PankovAStringWordCountSEQ::PostProcessingImpl() {
-  GetOutput() -= GetInput();
-  return GetOutput() > 0;
+  return GetOutput() >= 0;
 }
 
 }  // namespace pankov_a_string_word_count
