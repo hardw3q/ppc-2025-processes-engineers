@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <array>
+#include <cstddef>
 #include <string>
 #include <tuple>
-#include <utility>
 
 #include "pankov_a_string_word_count/common/include/common.hpp"
 #include "pankov_a_string_word_count/mpi/include/ops_mpi.hpp"
@@ -25,8 +25,7 @@ class PankovARunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType, 
 
  protected:
   void SetUp() override {
-    LocalTestType params =
-        std::get<static_cast<std::size_t>(ppc::util::GTestParamIndex::kTestParams)>(this->GetParam());
+    LocalTestType params = std::get<static_cast<std::size_t>(ppc::util::GTestParamIndex::kTestParams)>(GetParam());
 
     input_data_ = std::get<0>(params);
     expected_output_ = std::get<1>(params);
@@ -41,8 +40,8 @@ class PankovARunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType, 
   }
 
  private:
-  InType input_data_{};
-  OutType expected_output_{0};
+  InType input_data_;
+  OutType expected_output_{};
 };
 
 namespace {

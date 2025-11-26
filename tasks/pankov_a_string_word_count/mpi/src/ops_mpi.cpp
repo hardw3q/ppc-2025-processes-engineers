@@ -2,11 +2,13 @@
 
 #include <mpi.h>
 
-#include <numeric>
-#include <vector>
+#include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <string>
+#include <utility>
 
 #include "pankov_a_string_word_count/common/include/common.hpp"
-#include "util/include/util.hpp"
 
 namespace pankov_a_string_word_count {
 
@@ -25,13 +27,15 @@ bool PankovAStringWordCountMPI::PreProcessingImpl() {
   return true;
 }
 
-static int CountWordsLocal(const std::string &s, std::size_t start, std::size_t end) {
+namespace {
+
+int CountWordsLocal(const std::string &s, std::size_t start, std::size_t end) {
   int count = 0;
   bool in_word = false;
 
   for (std::size_t i = start; i < end; ++i) {
-    unsigned char uc = static_cast<unsigned char>(s[i]);
-    if (!std::isspace(uc)) {
+    auto uc = static_cast<unsigned char>(s[i]);
+    if (std::isspace(uc) == 0) {
       if (!in_word) {
         in_word = true;
         ++count;
@@ -43,6 +47,8 @@ static int CountWordsLocal(const std::string &s, std::size_t start, std::size_t 
 
   return count;
 }
+
+}  // namespace
 
 bool PankovAStringWordCountMPI::RunImpl() {
   const std::string &s = GetInput();
@@ -62,28 +68,22 @@ bool PankovAStringWordCountMPI::RunImpl() {
   std::size_t base = n / static_cast<std::size_t>(size);
   std::size_t rem = n % static_cast<std::size_t>(size);
 
-  std::size_t start = rank * base + static_cast<std::size_t>(std::min(rank, static_cast<int>(rem)));
-  std::size_t end = start + base + (rank < static_cast<int>(rem) ? 1 : 0);
+  std::size_t start = (rank * base) + static_cast<std::size_t>(std::min(rank, static_cast<int>(rem)));
+  std::size_t end = start + base + (std::cmp_less(rank, static_cast<int>(rem)) ? 1 : 0);
 
-  if (start > n) {
-    start = n;
-  }
-  if (end > n) {
-    end = n;
-  }
+  start = std::min(start, n);
+  end = std::min(end, n);
 
   if (rank != 0 && start < n) {
-    if (!std::isspace(static_cast<unsigned char>(s[start])) &&
-        !std::isspace(static_cast<unsigned char>(s[start - 1]))) {
-      while (start < end && !std::isspace(static_cast<unsigned char>(s[start]))) {
+    if ((std::isspace(static_cast<unsigned char>(s[start])) == 0) &&
+        (std::isspace(static_cast<unsigned char>(s[start - 1])) == 0)) {
+      while (start < end && (std::isspace(static_cast<unsigned char>(s[start])) == 0)) {
         ++start;
       }
     }
   }
 
-  if (start > end) {
-    start = end;
-  }
+  start = std::min(start, end);
 
   int local_count = 0;
   if (start < end) {

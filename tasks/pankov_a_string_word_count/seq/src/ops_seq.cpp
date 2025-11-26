@@ -1,10 +1,9 @@
 #include "pankov_a_string_word_count/seq/include/ops_seq.hpp"
 
-#include <numeric>
-#include <vector>
+#include <cctype>
+#include <string>
 
 #include "pankov_a_string_word_count/common/include/common.hpp"
-#include "util/include/util.hpp"
 
 namespace pankov_a_string_word_count {
 
@@ -23,12 +22,14 @@ bool PankovAStringWordCountSEQ::PreProcessingImpl() {
   return true;
 }
 
-static OutType CountWordsInString(const std::string &s) {
+namespace {
+
+OutType CountWordsInString(const std::string &s) {
   int count = 0;
   bool in_word = false;
 
   for (unsigned char uc : s) {
-    if (!std::isspace(uc)) {
+    if (std::isspace(uc) == 0) {
       if (!in_word) {
         in_word = true;
         ++count;
@@ -40,6 +41,8 @@ static OutType CountWordsInString(const std::string &s) {
 
   return count;
 }
+
+}  // namespace
 
 bool PankovAStringWordCountSEQ::RunImpl() {
   const std::string &s = GetInput();

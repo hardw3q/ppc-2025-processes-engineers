@@ -1,22 +1,31 @@
 #include <gtest/gtest.h>
 
-#include <string>
+#include <cstddef>
+#include <sstream>
 
 #include "pankov_a_string_word_count/common/include/common.hpp"
 #include "pankov_a_string_word_count/mpi/include/ops_mpi.hpp"
 #include "pankov_a_string_word_count/seq/include/ops_seq.hpp"
 #include "util/include/perf_test_util.hpp"
-#include "util/include/util.hpp"
 
 namespace pankov_a_string_word_count {
 
 class PankovARunPerfTestProcesses : public ppc::util::BaseRunPerfTests<InType, OutType> {
-  InType input_data_{};
+  InType input_data_;
   OutType expected_output_{};
 
   void SetUp() override {
-    input_data_ = "one two three four five six seven eight nine ten";
-    expected_output_ = 10;
+    const size_t word_count = 10'000'000;
+    std::ostringstream os;
+    os.seekp(word_count * 6);
+    os.clear();
+
+    for (size_t i = 0; i < word_count; ++i) {
+      os << "word ";
+    }
+
+    input_data_ = os.str();
+    expected_output_ = word_count;
   }
 
   bool CheckTestOutputData(OutType &output_data) final {
