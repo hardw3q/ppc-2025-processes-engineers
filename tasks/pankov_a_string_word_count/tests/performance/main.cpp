@@ -10,14 +10,12 @@
 
 namespace pankov_a_string_word_count {
 
-class PankovARunPerfTestProcesses
-    : public ppc::util::BaseRunPerfTests<InType, OutType> {
-  InType  input_data_{};
+class PankovARunPerfTestProcesses : public ppc::util::BaseRunPerfTests<InType, OutType> {
+  InType input_data_{};
   OutType expected_output_{};
 
   void SetUp() override {
-    input_data_ =
-        "one two three four five six seven eight nine ten";
+    input_data_ = "one two three four five six seven eight nine ten";
     expected_output_ = 10;
   }
 
@@ -34,19 +32,12 @@ TEST_P(PankovARunPerfTestProcesses, RunPerfModes) {
   ExecuteTest(GetParam());
 }
 
-const auto kAllPerfTasks =
-    ppc::util::MakeAllPerfTasks<InType,
-                                PankovAStringWordCountMPI,
-                                PankovAStringWordCountSEQ>(
-        PPC_SETTINGS_pankov_a_string_word_count);
+const auto kAllPerfTasks = ppc::util::MakeAllPerfTasks<InType, PankovAStringWordCountMPI, PankovAStringWordCountSEQ>(
+    PPC_SETTINGS_pankov_a_string_word_count);
 
-const auto kGtestValues  = ppc::util::TupleToGTestValues(kAllPerfTasks);
-const auto kPerfTestName =
-    PankovARunPerfTestProcesses::CustomPerfTestName;
+const auto kGtestValues = ppc::util::TupleToGTestValues(kAllPerfTasks);
+const auto kPerfTestName = PankovARunPerfTestProcesses::CustomPerfTestName;
 
-INSTANTIATE_TEST_SUITE_P(RunModeTests,
-                         PankovARunPerfTestProcesses,
-                         kGtestValues,
-                         kPerfTestName);
+INSTANTIATE_TEST_SUITE_P(RunModeTests, PankovARunPerfTestProcesses, kGtestValues, kPerfTestName);
 
 }  // namespace pankov_a_string_word_count

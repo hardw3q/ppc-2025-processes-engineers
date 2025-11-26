@@ -23,7 +23,7 @@ bool PankovAStringWordCountSEQ::PreProcessingImpl() {
   return true;
 }
 
-static OutType CountWordsInString(const std::string& s) {
+static OutType CountWordsInString(const std::string &s) {
   int count = 0;
   bool in_word = false;
 
@@ -42,11 +42,10 @@ static OutType CountWordsInString(const std::string& s) {
 }
 
 bool PankovAStringWordCountSEQ::RunImpl() {
-  const std::string& s = GetInput();
+  const std::string &s = GetInput();
   GetOutput() = CountWordsInString(s);
   return true;
 }
-
 
 bool PankovAStringWordCountSEQ::PostProcessingImpl() {
   return GetOutput() >= 0;

@@ -25,7 +25,7 @@ bool PankovAStringWordCountMPI::PreProcessingImpl() {
   return true;
 }
 
-static int CountWordsLocal(const std::string& s, std::size_t start, std::size_t end) {
+static int CountWordsLocal(const std::string &s, std::size_t start, std::size_t end) {
   int count = 0;
   bool in_word = false;
 
@@ -45,7 +45,7 @@ static int CountWordsLocal(const std::string& s, std::size_t start, std::size_t 
 }
 
 bool PankovAStringWordCountMPI::RunImpl() {
-  const std::string& s = GetInput();
+  const std::string &s = GetInput();
   const std::size_t n = s.size();
 
   int rank = 0;
@@ -60,25 +60,30 @@ bool PankovAStringWordCountMPI::RunImpl() {
   }
 
   std::size_t base = n / static_cast<std::size_t>(size);
-  std::size_t rem  = n % static_cast<std::size_t>(size);
+  std::size_t rem = n % static_cast<std::size_t>(size);
 
   std::size_t start = rank * base + static_cast<std::size_t>(std::min(rank, static_cast<int>(rem)));
-  std::size_t end   = start + base + (rank < static_cast<int>(rem) ? 1 : 0);
+  std::size_t end = start + base + (rank < static_cast<int>(rem) ? 1 : 0);
 
-  if (start > n) start = n;
-  if (end > n) end = n;
+  if (start > n) {
+    start = n;
+  }
+  if (end > n) {
+    end = n;
+  }
 
   if (rank != 0 && start < n) {
     if (!std::isspace(static_cast<unsigned char>(s[start])) &&
         !std::isspace(static_cast<unsigned char>(s[start - 1]))) {
-      while (start < end &&
-             !std::isspace(static_cast<unsigned char>(s[start]))) {
+      while (start < end && !std::isspace(static_cast<unsigned char>(s[start]))) {
         ++start;
       }
     }
   }
 
-  if (start > end) start = end;
+  if (start > end) {
+    start = end;
+  }
 
   int local_count = 0;
   if (start < end) {

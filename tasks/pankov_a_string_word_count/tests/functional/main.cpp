@@ -15,12 +15,10 @@ namespace pankov_a_string_word_count {
 
 using LocalTestType = std::tuple<InType, OutType>;
 
-
-class PankovARunFuncTestsProcesses
-    : public ppc::util::BaseRunFuncTests<InType, OutType, LocalTestType> {
+class PankovARunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType, OutType, LocalTestType> {
  public:
   static std::string PrintTestParam(const LocalTestType &test_param) {
-    const auto &input  = std::get<0>(test_param);
+    const auto &input = std::get<0>(test_param);
     const auto &expect = std::get<1>(test_param);
     return input + "_expect_" + std::to_string(expect);
   }
@@ -28,10 +26,9 @@ class PankovARunFuncTestsProcesses
  protected:
   void SetUp() override {
     LocalTestType params =
-        std::get<static_cast<std::size_t>(ppc::util::GTestParamIndex::kTestParams)>(
-            this->GetParam());
+        std::get<static_cast<std::size_t>(ppc::util::GTestParamIndex::kTestParams)>(this->GetParam());
 
-    input_data_      = std::get<0>(params);
+    input_data_ = std::get<0>(params);
     expected_output_ = std::get<1>(params);
   }
 
@@ -44,7 +41,7 @@ class PankovARunFuncTestsProcesses
   }
 
  private:
-  InType  input_data_{};
+  InType input_data_{};
   OutType expected_output_{0};
 };
 
@@ -63,21 +60,14 @@ TEST_P(PankovARunFuncTestsProcesses, StringWordCount) {
   ExecuteTest(GetParam());
 }
 
-const auto kTestTasksList =
-    std::tuple_cat(
-        ppc::util::AddFuncTask<PankovAStringWordCountMPI, InType>(
-            kTestParam, PPC_SETTINGS_pankov_a_string_word_count),
-        ppc::util::AddFuncTask<PankovAStringWordCountSEQ, InType>(
-            kTestParam, PPC_SETTINGS_pankov_a_string_word_count));
+const auto kTestTasksList = std::tuple_cat(
+    ppc::util::AddFuncTask<PankovAStringWordCountMPI, InType>(kTestParam, PPC_SETTINGS_pankov_a_string_word_count),
+    ppc::util::AddFuncTask<PankovAStringWordCountSEQ, InType>(kTestParam, PPC_SETTINGS_pankov_a_string_word_count));
 
-const auto kGtestValues  = ppc::util::ExpandToValues(kTestTasksList);
-const auto kFuncTestName =
-    PankovARunFuncTestsProcesses::PrintFuncTestName<PankovARunFuncTestsProcesses>;
+const auto kGtestValues = ppc::util::ExpandToValues(kTestTasksList);
+const auto kFuncTestName = PankovARunFuncTestsProcesses::PrintFuncTestName<PankovARunFuncTestsProcesses>;
 
-INSTANTIATE_TEST_SUITE_P(WordCountTests,
-                         PankovARunFuncTestsProcesses,
-                         kGtestValues,
-                         kFuncTestName);
+INSTANTIATE_TEST_SUITE_P(WordCountTests, PankovARunFuncTestsProcesses, kGtestValues, kFuncTestName);
 
 }  // namespace
 
