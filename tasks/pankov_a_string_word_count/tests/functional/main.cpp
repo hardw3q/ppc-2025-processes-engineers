@@ -66,9 +66,9 @@ TEST_P(PankovARunFuncTestsProcesses, StringWordCount) {
 const auto kTestTasksList =
     std::tuple_cat(
         ppc::util::AddFuncTask<PankovAStringWordCountMPI, InType>(
-            kTestParam, PPC_SETTINGS_example_processes),
+            kTestParam, PPC_SETTINGS_pankov_a_string_word_count),
         ppc::util::AddFuncTask<PankovAStringWordCountSEQ, InType>(
-            kTestParam, PPC_SETTINGS_example_processes));
+            kTestParam, PPC_SETTINGS_pankov_a_string_word_count));
 
 const auto kGtestValues  = ppc::util::ExpandToValues(kTestTasksList);
 const auto kFuncTestName =

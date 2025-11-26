@@ -38,7 +38,7 @@ const auto kAllPerfTasks =
     ppc::util::MakeAllPerfTasks<InType,
                                 PankovAStringWordCountMPI,
                                 PankovAStringWordCountSEQ>(
-        PPC_SETTINGS_example_processes);
+        PPC_SETTINGS_pankov_a_string_word_count);
 
 const auto kGtestValues  = ppc::util::TupleToGTestValues(kAllPerfTasks);
 const auto kPerfTestName =
