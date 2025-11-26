@@ -20,7 +20,8 @@ class PankovARunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType, 
   static std::string PrintTestParam(const LocalTestType &test_param) {
     const auto &input = std::get<0>(test_param);
     const auto &expect = std::get<1>(test_param);
-    return input + "_expect_" + std::to_string(expect);
+    std::string sanitized_input = ppc::util::test::SanitizeToken(input);
+    return sanitized_input + "_expect_" + std::to_string(expect);
   }
 
  protected:
