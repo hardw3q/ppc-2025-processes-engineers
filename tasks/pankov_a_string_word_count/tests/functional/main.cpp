@@ -47,13 +47,15 @@ class PankovARunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType, 
 
 namespace {
 
-const std::array<LocalTestType, 6> kTestParam = {
+const std::array<LocalTestType, 8> kTestParam = {
     LocalTestType{InType(""), 0},
     LocalTestType{InType("hello"), 1},
     LocalTestType{InType("hello world"), 2},
     LocalTestType{InType("  many   spaces   here  "), 3},
     LocalTestType{InType("one\ntwo\tthree"), 3},
     LocalTestType{InType("  mix of \n spaces\tand words  "), 5},
+    LocalTestType{InType("abc defghijklmnopqrstuvwxyz"), 2},
+    LocalTestType{InType("a b c d e f g h i j k l m n o p q r s t u v w x y z"), 26},
 };
 
 TEST_P(PankovARunFuncTestsProcesses, StringWordCount) {
