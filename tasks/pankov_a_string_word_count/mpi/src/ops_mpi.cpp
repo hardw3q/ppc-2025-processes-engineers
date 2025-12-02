@@ -51,13 +51,18 @@ int CountWordsLocal(const std::string &s, std::size_t start, std::size_t end) {
 }  // namespace
 
 bool PankovAStringWordCountMPI::RunImpl() {
-  const std::string &s = GetInput();
-  const std::size_t n = s.size();
-
   int rank = 0;
   int size = 1;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+  std::string s;
+  int n = 0;
+  if (rank == 0) {
+    s = GetInput();
+    n = static_cast<int>(s.size());
+  }
+  MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   if (n == 0) {
     GetOutput() = 0;
@@ -65,16 +70,22 @@ bool PankovAStringWordCountMPI::RunImpl() {
     return true;
   }
 
-  std::size_t base = n / static_cast<std::size_t>(size);
-  std::size_t rem = n % static_cast<std::size_t>(size);
+  if (rank != 0) {
+    s.resize(static_cast<std::size_t>(n));
+  }
+  MPI_Bcast(s.data(), n, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+  const auto str_size = static_cast<std::size_t>(n);
+  std::size_t base = str_size / static_cast<std::size_t>(size);
+  std::size_t rem = str_size % static_cast<std::size_t>(size);
 
   std::size_t start = (rank * base) + static_cast<std::size_t>(std::min(rank, static_cast<int>(rem)));
   std::size_t end = start + base + (std::cmp_less(rank, static_cast<int>(rem)) ? 1 : 0);
 
-  start = std::min(start, n);
-  end = std::min(end, n);
+  start = std::min(start, str_size);
+  end = std::min(end, str_size);
 
-  if (rank != 0 && start < n) {
+  if (rank != 0 && start < str_size) {
     if ((std::isspace(static_cast<unsigned char>(s[start])) == 0) &&
         (std::isspace(static_cast<unsigned char>(s[start - 1])) == 0)) {
       while (start < end && (std::isspace(static_cast<unsigned char>(s[start])) == 0)) {
