@@ -84,7 +84,8 @@ const auto kTestTasksList = std::tuple_cat(
     ppc::util::AddFuncTask<PankovMatrixVectorSEQ, InType>(kTestParam, PPC_SETTINGS_pankov_matrix_vector));
 
 const auto kGtestValues = ppc::util::ExpandToValues(kTestTasksList);
-const auto kFuncTestName = PankovMatrixVectorRunFuncTestsProcesses::PrintFuncTestName<PankovMatrixVectorRunFuncTestsProcesses>;
+const auto kFuncTestName =
+    PankovMatrixVectorRunFuncTestsProcesses::PrintFuncTestName<PankovMatrixVectorRunFuncTestsProcesses>;
 
 INSTANTIATE_TEST_SUITE_P(MatrixVectorTests, PankovMatrixVectorRunFuncTestsProcesses, kGtestValues, kFuncTestName);
 

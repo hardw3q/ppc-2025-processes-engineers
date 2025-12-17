@@ -28,16 +28,15 @@ bool PankovMatrixVectorMPI::PreProcessingImpl() {
   return true;
 }
 
-void PankovMatrixVectorMPI::DistributeDataFromRank0(
-    const std::vector<std::vector<double>> &matrix,
-    std::vector<std::vector<double>> *local_matrix_band, std::vector<double> *local_result,
-    std::size_t u_rows, std::size_t u_cols, std::size_t u_size, int size,
-    const std::vector<double> &local_vector) {
+void PankovMatrixVectorMPI::DistributeDataFromRank0(const std::vector<std::vector<double>> &matrix,
+                                                    std::vector<std::vector<double>> *local_matrix_band,
+                                                    std::vector<double> *local_result, std::size_t u_rows,
+                                                    std::size_t u_cols, std::size_t u_size, int size,
+                                                    const std::vector<double> &local_vector) {
   std::size_t proc0_base_cols = u_cols / u_size;
   std::size_t proc0_rem_cols = u_cols % u_size;
   std::size_t proc0_start_col = 0;
-  std::size_t proc0_end_col =
-      proc0_base_cols + (std::cmp_less(0, static_cast<int>(proc0_rem_cols)) ? 1 : 0);
+  std::size_t proc0_end_col = proc0_base_cols + (std::cmp_less(0, static_cast<int>(proc0_rem_cols)) ? 1 : 0);
   proc0_end_col = std::min(proc0_end_col, u_cols);
   std::size_t proc0_local_cols = proc0_end_col - proc0_start_col;
 
@@ -47,8 +46,7 @@ void PankovMatrixVectorMPI::DistributeDataFromRank0(
     }
   }
 
-  ComputePartialResults(*local_matrix_band, local_vector, local_result, u_rows, proc0_local_cols,
-                        proc0_start_col);
+  ComputePartialResults(*local_matrix_band, local_vector, local_result, u_rows, proc0_local_cols, proc0_start_col);
 
   std::vector<MPI_Request> send_requests;
   std::vector<std::vector<double>> send_buffers;
@@ -61,8 +59,7 @@ void PankovMatrixVectorMPI::DistributeDataFromRank0(
     std::size_t proc_start_col = (static_cast<std::size_t>(proc) * proc_base_cols) +
                                  static_cast<std::size_t>(std::min(proc, static_cast<int>(proc_rem_cols)));
     std::size_t proc_end_col =
-        proc_start_col + proc_base_cols +
-        (std::cmp_less(proc, static_cast<int>(proc_rem_cols)) ? 1 : 0);
+        proc_start_col + proc_base_cols + (std::cmp_less(proc, static_cast<int>(proc_rem_cols)) ? 1 : 0);
     proc_end_col = std::min(proc_end_col, u_cols);
     std::size_t proc_local_cols = proc_end_col - proc_start_col;
 
@@ -76,8 +73,8 @@ void PankovMatrixVectorMPI::DistributeDataFromRank0(
     }
 
     send_requests.emplace_back();
-    MPI_Isend(send_buffer.data(), static_cast<int>(u_rows * proc_local_cols), MPI_DOUBLE, proc, 0,
-              MPI_COMM_WORLD, &send_requests.back());
+    MPI_Isend(send_buffer.data(), static_cast<int>(u_rows * proc_local_cols), MPI_DOUBLE, proc, 0, MPI_COMM_WORLD,
+              &send_requests.back());
   }
 
   if (!send_requests.empty()) {
@@ -85,13 +82,11 @@ void PankovMatrixVectorMPI::DistributeDataFromRank0(
   }
 }
 
-void PankovMatrixVectorMPI::ReceiveDataOnRankNonZero(
-    std::vector<std::vector<double>> *local_matrix_band, std::size_t u_rows,
-    std::size_t local_cols) {
+void PankovMatrixVectorMPI::ReceiveDataOnRankNonZero(std::vector<std::vector<double>> *local_matrix_band,
+                                                     std::size_t u_rows, std::size_t local_cols) {
   std::vector<double> recv_buffer(u_rows * local_cols);
   MPI_Request recv_request = MPI_REQUEST_NULL;
-  MPI_Irecv(recv_buffer.data(), static_cast<int>(u_rows * local_cols), MPI_DOUBLE, 0, 0,
-            MPI_COMM_WORLD, &recv_request);
+  MPI_Irecv(recv_buffer.data(), static_cast<int>(u_rows * local_cols), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &recv_request);
 
   MPI_Wait(&recv_request, MPI_STATUS_IGNORE);
 
@@ -102,10 +97,10 @@ void PankovMatrixVectorMPI::ReceiveDataOnRankNonZero(
   }
 }
 
-void PankovMatrixVectorMPI::ComputePartialResults(
-    const std::vector<std::vector<double>> &local_matrix_band,
-    const std::vector<double> &local_vector, std::vector<double> *local_result, std::size_t u_rows,
-    std::size_t local_cols, std::size_t start_col) {
+void PankovMatrixVectorMPI::ComputePartialResults(const std::vector<std::vector<double>> &local_matrix_band,
+                                                  const std::vector<double> &local_vector,
+                                                  std::vector<double> *local_result, std::size_t u_rows,
+                                                  std::size_t local_cols, std::size_t start_col) {
   for (std::size_t i = 0; i < u_rows; ++i) {
     for (std::size_t j = 0; j < local_cols; ++j) {
       (*local_result)[i] += local_matrix_band[i][j] * local_vector[start_col + j];
@@ -154,8 +149,7 @@ bool PankovMatrixVectorMPI::RunImpl() {
 
   std::size_t start_col = (static_cast<std::size_t>(rank) * base_cols) +
                           static_cast<std::size_t>(std::min(rank, static_cast<int>(rem_cols)));
-  std::size_t end_col =
-      start_col + base_cols + (std::cmp_less(rank, static_cast<int>(rem_cols)) ? 1 : 0);
+  std::size_t end_col = start_col + base_cols + (std::cmp_less(rank, static_cast<int>(rem_cols)) ? 1 : 0);
   end_col = std::min(end_col, u_cols);
   std::size_t local_cols = end_col - start_col;
 
@@ -173,17 +167,14 @@ bool PankovMatrixVectorMPI::RunImpl() {
   std::vector<double> local_result(u_rows, 0.0);
 
   if (rank == 0) {
-    DistributeDataFromRank0(matrix, &local_matrix_band, &local_result, u_rows, u_cols, u_size,
-                            size, local_vector);
+    DistributeDataFromRank0(matrix, &local_matrix_band, &local_result, u_rows, u_cols, u_size, size, local_vector);
   } else {
     ReceiveDataOnRankNonZero(&local_matrix_band, u_rows, local_cols);
-    ComputePartialResults(local_matrix_band, local_vector, &local_result, u_rows, local_cols,
-                          start_col);
+    ComputePartialResults(local_matrix_band, local_vector, &local_result, u_rows, local_cols, start_col);
   }
 
   std::vector<double> global_result(u_rows, 0.0);
-  MPI_Reduce(local_result.data(), global_result.data(), rows, MPI_DOUBLE, MPI_SUM, 0,
-             MPI_COMM_WORLD);
+  MPI_Reduce(local_result.data(), global_result.data(), rows, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
   MPI_Bcast(global_result.data(), rows, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
