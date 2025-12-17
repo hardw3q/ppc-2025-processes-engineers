@@ -13,7 +13,8 @@ namespace pankov_matrix_vector {
 
 PankovMatrixVectorMPI::PankovMatrixVectorMPI(const InType &in) {
   SetTypeOfTask(GetStaticTypeOfTask());
-  GetInput() = in;
+  InType temp(in);
+  std::swap(GetInput(), temp);
   GetOutput() = std::vector<double>();
 }
 

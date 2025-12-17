@@ -1,6 +1,7 @@
 #include "pankov_matrix_vector/seq/include/ops_seq.hpp"
 
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "pankov_matrix_vector/common/include/common.hpp"
@@ -9,7 +10,8 @@ namespace pankov_matrix_vector {
 
 PankovMatrixVectorSEQ::PankovMatrixVectorSEQ(const InType &in) {
   SetTypeOfTask(GetStaticTypeOfTask());
-  GetInput() = in;
+  InType temp(in);
+  std::swap(GetInput(), temp);
   GetOutput() = std::vector<double>();
 }
 
