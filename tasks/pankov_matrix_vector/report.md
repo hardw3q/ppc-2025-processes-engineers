@@ -553,4 +553,3 @@ MPI_Bcast(global_result.data(), rows, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
 GetOutput() = global_result;
 ```
-
