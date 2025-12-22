@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cstddef>
-#include <vector>
-
 #include "pankov_gauss_filter/common/include/common.hpp"
 #include "task/include/task.hpp"
 
