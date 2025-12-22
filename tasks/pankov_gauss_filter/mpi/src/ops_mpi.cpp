@@ -135,28 +135,29 @@ void ExchangeHaloColumns(const Decomposition &dec, std::size_t height, std::size
   ExtractStripeColumn(local_stripe, local_width, height, channels, 0, &first_col);
   ExtractStripeColumn(local_stripe, local_width, height, channels, local_width - 1, &last_col);
 
-  *left_halo = first_col;   // replicate by default
-  *right_halo = last_col;   // replicate by default
+  *left_halo = first_col;  // replicate by default
+  *right_halo = last_col;  // replicate by default
 
-  const bool has_left_neighbor =
-      (proc_rank > 0) && (dec.LocalWidthForProc(proc_rank - 1) > 0) && (local_width > 0);
+  const bool has_left_neighbor = (proc_rank > 0) && (dec.LocalWidthForProc(proc_rank - 1) > 0) && (local_width > 0);
   const bool has_right_neighbor =
       (proc_rank + 1 < proc_count) && (dec.LocalWidthForProc(proc_rank + 1) > 0) && (local_width > 0);
 
   if (has_left_neighbor) {
-    MPI_Sendrecv(first_col.data(), static_cast<int>(col_elems), MPI_UNSIGNED_CHAR, proc_rank - 1, 100, left_halo->data(),
-                 static_cast<int>(col_elems), MPI_UNSIGNED_CHAR, proc_rank - 1, 200, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Sendrecv(first_col.data(), static_cast<int>(col_elems), MPI_UNSIGNED_CHAR, proc_rank - 1, 100,
+                 left_halo->data(), static_cast<int>(col_elems), MPI_UNSIGNED_CHAR, proc_rank - 1, 200, MPI_COMM_WORLD,
+                 MPI_STATUS_IGNORE);
   }
   if (has_right_neighbor) {
-    MPI_Sendrecv(last_col.data(), static_cast<int>(col_elems), MPI_UNSIGNED_CHAR, proc_rank + 1, 200, right_halo->data(),
-                 static_cast<int>(col_elems), MPI_UNSIGNED_CHAR, proc_rank + 1, 100, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Sendrecv(last_col.data(), static_cast<int>(col_elems), MPI_UNSIGNED_CHAR, proc_rank + 1, 200,
+                 right_halo->data(), static_cast<int>(col_elems), MPI_UNSIGNED_CHAR, proc_rank + 1, 100, MPI_COMM_WORLD,
+                 MPI_STATUS_IGNORE);
   }
 }
 
 std::uint8_t ConvolveGaussian3x3ForStripe(const std::vector<std::uint8_t> &local_stripe, std::size_t local_width,
-                                         const std::vector<std::uint8_t> &left_halo,
-                                         const std::vector<std::uint8_t> &right_halo, int height, int channels, int row,
-                                         std::size_t local_col, int channel) {
+                                          const std::vector<std::uint8_t> &left_halo,
+                                          const std::vector<std::uint8_t> &right_halo, int height, int channels,
+                                          int row, std::size_t local_col, int channel) {
   const auto u_channels = static_cast<std::size_t>(channels);
 
   const int row_prev = ClampInt(row - 1, 0, height - 1);
@@ -169,8 +170,7 @@ std::uint8_t ConvolveGaussian3x3ForStripe(const std::vector<std::uint8_t> &local
     const int src_row = src_rows.at(static_cast<std::size_t>(dy_idx));
     const std::size_t halo_row_off = static_cast<std::size_t>(src_row) * u_channels;
     for (int dx_idx = 0; dx_idx < 3; ++dx_idx) {
-      const int weight =
-          kGaussianKernel3x3.at(static_cast<std::size_t>(dy_idx)).at(static_cast<std::size_t>(dx_idx));
+      const int weight = kGaussianKernel3x3.at(static_cast<std::size_t>(dy_idx)).at(static_cast<std::size_t>(dx_idx));
       const int offset = dx_idx - 1;
 
       std::uint8_t pix = 0;
@@ -185,9 +185,8 @@ std::uint8_t ConvolveGaussian3x3ForStripe(const std::vector<std::uint8_t> &local
         } else if (offset == 1) {
           src_local_col = local_col + 1;
         }
-        const std::size_t idx =
-            ((static_cast<std::size_t>(src_row) * local_width + src_local_col) * u_channels) +
-            static_cast<std::size_t>(channel);
+        const std::size_t idx = ((static_cast<std::size_t>(src_row) * local_width + src_local_col) * u_channels) +
+                                static_cast<std::size_t>(channel);
         pix = local_stripe[idx];
       }
       acc += weight * static_cast<int>(pix);
@@ -209,9 +208,8 @@ void ApplyGaussianToStripe(const std::vector<std::uint8_t> &local_stripe, std::s
         const std::size_t out_idx =
             ((static_cast<std::size_t>(row) * local_width + local_col) * static_cast<std::size_t>(channels)) +
             static_cast<std::size_t>(channel);
-        (*local_out)[out_idx] =
-            ConvolveGaussian3x3ForStripe(local_stripe, local_width, left_halo, right_halo, height, channels, row,
-                                         local_col, channel);
+        (*local_out)[out_idx] = ConvolveGaussian3x3ForStripe(local_stripe, local_width, left_halo, right_halo, height,
+                                                             channels, row, local_col, channel);
       }
     }
   }
@@ -264,8 +262,8 @@ bool PankovGaussFilterMPI::ValidationImpl() {
   if (in.channels == 0) {
     return false;
   }
-  const auto expected = static_cast<std::size_t>(in.width) * static_cast<std::size_t>(in.height) *
-                        static_cast<std::size_t>(in.channels);
+  const auto expected =
+      static_cast<std::size_t>(in.width) * static_cast<std::size_t>(in.height) * static_cast<std::size_t>(in.channels);
   return in.data.size() == expected;
 }
 
@@ -275,8 +273,8 @@ bool PankovGaussFilterMPI::PreProcessingImpl() {
   out.width = in.width;
   out.height = in.height;
   out.channels = in.channels;
-  const auto total = static_cast<std::size_t>(in.width) * static_cast<std::size_t>(in.height) *
-                     static_cast<std::size_t>(in.channels);
+  const auto total =
+      static_cast<std::size_t>(in.width) * static_cast<std::size_t>(in.height) * static_cast<std::size_t>(in.channels);
   out.data.assign(total, 0);
   return true;
 }

@@ -27,7 +27,7 @@ inline std::uint8_t ClampToByte(int v) {
 constexpr std::array<std::array<int, 3>, 3> kGaussianKernel3x3 = {{{{1, 2, 1}}, {{2, 4, 2}}, {{1, 2, 1}}}};
 constexpr int kGaussianDiv = 16;
 
-std::uint8_t ConvolveGaussian3x3Clamp(const Image& image, int row, int col, int channel) {
+std::uint8_t ConvolveGaussian3x3Clamp(const Image &image, int row, int col, int channel) {
   const int width = image.width;
   const int height = image.height;
   const int channels = image.channels;
@@ -42,7 +42,7 @@ std::uint8_t ConvolveGaussian3x3Clamp(const Image& image, int row, int col, int 
       const int weight = kGaussianKernel3x3.at(kernel_row).at(kernel_col);
       const std::size_t idx =
           ((static_cast<std::size_t>(src_row) * static_cast<std::size_t>(width) + static_cast<std::size_t>(src_col)) *
-               static_cast<std::size_t>(channels)) +
+           static_cast<std::size_t>(channels)) +
           static_cast<std::size_t>(channel);
       acc += weight * static_cast<int>(image.data[idx]);
     }
@@ -52,7 +52,7 @@ std::uint8_t ConvolveGaussian3x3Clamp(const Image& image, int row, int col, int 
   return ClampToByte(rounded);
 }
 
-Image ApplyGaussian3x3Clamp(const Image& in) {
+Image ApplyGaussian3x3Clamp(const Image &in) {
   Image out;
   out.width = in.width;
   out.height = in.height;
@@ -70,7 +70,7 @@ Image ApplyGaussian3x3Clamp(const Image& in) {
       for (int channel = 0; channel < channels; ++channel) {
         const std::size_t out_idx =
             ((static_cast<std::size_t>(row) * static_cast<std::size_t>(width) + static_cast<std::size_t>(col)) *
-                 static_cast<std::size_t>(channels)) +
+             static_cast<std::size_t>(channels)) +
             static_cast<std::size_t>(channel);
         out.data[out_idx] = ConvolveGaussian3x3Clamp(in, row, col, channel);
       }
@@ -119,8 +119,8 @@ TEST_P(PankovGaussFilterRunPerfTestProcesses, RunPerfModes) {
   ExecuteTest(GetParam());
 }
 
-const auto kAllPerfTasks = ppc::util::MakeAllPerfTasks<InType, PankovGaussFilterMPI, PankovGaussFilterSEQ>(
-    PPC_SETTINGS_pankov_gauss_filter);
+const auto kAllPerfTasks =
+    ppc::util::MakeAllPerfTasks<InType, PankovGaussFilterMPI, PankovGaussFilterSEQ>(PPC_SETTINGS_pankov_gauss_filter);
 
 const auto kGtestValues = ppc::util::TupleToGTestValues(kAllPerfTasks);
 const auto kPerfTestName = PankovGaussFilterRunPerfTestProcesses::CustomPerfTestName;

@@ -32,7 +32,7 @@ inline std::uint8_t ClampToByte(int v) {
 constexpr std::array<std::array<int, 3>, 3> kGaussianKernel3x3 = {{{{1, 2, 1}}, {{2, 4, 2}}, {{1, 2, 1}}}};
 constexpr int kGaussianDiv = 16;
 
-std::uint8_t ConvolveGaussian3x3Clamp(const Image& image, int row, int col, int channel) {
+std::uint8_t ConvolveGaussian3x3Clamp(const Image &image, int row, int col, int channel) {
   const int width = image.width;
   const int height = image.height;
   const int channels = image.channels;
@@ -47,7 +47,7 @@ std::uint8_t ConvolveGaussian3x3Clamp(const Image& image, int row, int col, int 
       const int weight = kGaussianKernel3x3.at(kernel_row).at(kernel_col);
       const std::size_t idx =
           ((static_cast<std::size_t>(src_row) * static_cast<std::size_t>(width) + static_cast<std::size_t>(src_col)) *
-               static_cast<std::size_t>(channels)) +
+           static_cast<std::size_t>(channels)) +
           static_cast<std::size_t>(channel);
       acc += weight * static_cast<int>(image.data[idx]);
     }
@@ -57,7 +57,7 @@ std::uint8_t ConvolveGaussian3x3Clamp(const Image& image, int row, int col, int 
   return ClampToByte(rounded);
 }
 
-Image ApplyGaussian3x3Clamp(const Image& in) {
+Image ApplyGaussian3x3Clamp(const Image &in) {
   Image out;
   out.width = in.width;
   out.height = in.height;
@@ -76,7 +76,7 @@ Image ApplyGaussian3x3Clamp(const Image& in) {
       for (int channel = 0; channel < channels; ++channel) {
         const std::size_t out_idx =
             ((static_cast<std::size_t>(row) * static_cast<std::size_t>(width) + static_cast<std::size_t>(col)) *
-                 static_cast<std::size_t>(channels)) +
+             static_cast<std::size_t>(channels)) +
             static_cast<std::size_t>(channel);
         out.data[out_idx] = ConvolveGaussian3x3Clamp(in, row, col, channel);
       }
@@ -85,7 +85,7 @@ Image ApplyGaussian3x3Clamp(const Image& in) {
   return out;
 }
 
-Image MakeImage(int w, int h, int ch, const std::vector<std::uint8_t>& data) {
+Image MakeImage(int w, int h, int ch, const std::vector<std::uint8_t> &data) {
   Image img;
   img.width = w;
   img.height = h;
@@ -98,15 +98,14 @@ Image MakeImage(int w, int h, int ch, const std::vector<std::uint8_t>& data) {
 
 class PankovGaussFilterRunFuncTestsProcesses : public ppc::util::BaseRunFuncTests<InType, OutType, LocalTestType> {
  public:
-  static std::string PrintTestParam(const LocalTestType& test_param) {
+  static std::string PrintTestParam(const LocalTestType &test_param) {
     return "img_" + std::to_string(test_param.width) + "x" + std::to_string(test_param.height) + "_ch" +
            std::to_string(test_param.channels);
   }
 
  protected:
   void SetUp() override {
-    LocalTestType input =
-        std::get<static_cast<std::size_t>(ppc::util::GTestParamIndex::kTestParams)>(GetParam());
+    LocalTestType input = std::get<static_cast<std::size_t>(ppc::util::GTestParamIndex::kTestParams)>(GetParam());
     input_data_ = input;
     expected_output_ = ApplyGaussian3x3Clamp(input_data_);
   }
@@ -133,12 +132,9 @@ const std::array<LocalTestType, 5> kTestParam = {
     MakeImage(1, 1, 1, {128}),
     MakeImage(2, 2, 1, {0, 64, 128, 255}),
     MakeImage(3, 3, 1, {0, 1, 2, 3, 4, 5, 6, 7, 8}),
-    MakeImage(4, 2, 3, {0, 0, 0, 10, 20, 30, 40, 50, 60, 255, 128, 64,
-                        5,  10, 15, 25, 35, 45, 60, 70, 80, 90, 100, 110}),
-    MakeImage(5, 4, 1, {0, 10, 20, 30, 40,
-                        50, 60, 70, 80, 90,
-                        100, 110, 120, 130, 140,
-                        150, 160, 170, 180, 190}),
+    MakeImage(4, 2, 3,
+              {0, 0, 0, 10, 20, 30, 40, 50, 60, 255, 128, 64, 5, 10, 15, 25, 35, 45, 60, 70, 80, 90, 100, 110}),
+    MakeImage(5, 4, 1, {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190}),
 };
 
 const auto kTestTasksList =
@@ -146,7 +142,8 @@ const auto kTestTasksList =
                    ppc::util::AddFuncTask<PankovGaussFilterSEQ, InType>(kTestParam, PPC_SETTINGS_pankov_gauss_filter));
 
 const auto kGtestValues = ppc::util::ExpandToValues(kTestTasksList);
-const auto kFuncTestName = PankovGaussFilterRunFuncTestsProcesses::PrintFuncTestName<PankovGaussFilterRunFuncTestsProcesses>;
+const auto kFuncTestName =
+    PankovGaussFilterRunFuncTestsProcesses::PrintFuncTestName<PankovGaussFilterRunFuncTestsProcesses>;
 
 INSTANTIATE_TEST_SUITE_P(GaussFilterTests, PankovGaussFilterRunFuncTestsProcesses, kGtestValues, kFuncTestName);
 

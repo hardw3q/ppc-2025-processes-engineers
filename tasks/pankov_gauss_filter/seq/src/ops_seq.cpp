@@ -40,7 +40,7 @@ std::uint8_t ConvolveGaussian3x3Clamp(const Image &image, int row, int col, int 
       const int weight = kGaussianKernel3x3.at(kernel_row).at(kernel_col);
       const std::size_t idx =
           ((static_cast<std::size_t>(src_row) * static_cast<std::size_t>(width) + static_cast<std::size_t>(src_col)) *
-               static_cast<std::size_t>(channels)) +
+           static_cast<std::size_t>(channels)) +
           static_cast<std::size_t>(channel);
       acc += weight * static_cast<int>(image.data[idx]);
     }
@@ -73,8 +73,8 @@ bool PankovGaussFilterSEQ::ValidationImpl() {
   if (in.channels == 0) {
     return false;
   }
-  const auto expected = static_cast<std::size_t>(in.width) * static_cast<std::size_t>(in.height) *
-                        static_cast<std::size_t>(in.channels);
+  const auto expected =
+      static_cast<std::size_t>(in.width) * static_cast<std::size_t>(in.height) * static_cast<std::size_t>(in.channels);
   return in.data.size() == expected;
 }
 
@@ -84,8 +84,8 @@ bool PankovGaussFilterSEQ::PreProcessingImpl() {
   out.width = in.width;
   out.height = in.height;
   out.channels = in.channels;
-  const auto total = static_cast<std::size_t>(in.width) * static_cast<std::size_t>(in.height) *
-                     static_cast<std::size_t>(in.channels);
+  const auto total =
+      static_cast<std::size_t>(in.width) * static_cast<std::size_t>(in.height) * static_cast<std::size_t>(in.channels);
   out.data.assign(total, 0);
   return true;
 }
@@ -107,7 +107,7 @@ bool PankovGaussFilterSEQ::RunImpl() {
       for (int channel = 0; channel < channels; ++channel) {
         const std::size_t out_idx =
             ((static_cast<std::size_t>(row) * static_cast<std::size_t>(width) + static_cast<std::size_t>(col)) *
-                 static_cast<std::size_t>(channels)) +
+             static_cast<std::size_t>(channels)) +
             static_cast<std::size_t>(channel);
         out.data[out_idx] = ConvolveGaussian3x3Clamp(in, row, col, channel);
       }

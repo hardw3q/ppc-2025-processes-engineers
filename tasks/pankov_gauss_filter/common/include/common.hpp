@@ -11,7 +11,7 @@ namespace pankov_gauss_filter {
 struct Image {
   int width = 0;
   int height = 0;
-  int channels = 0;  // 1 (grayscale) or 3/4 (RGB/RGBA)
+  int channels = 0;                // 1 (grayscale) or 3/4 (RGB/RGBA)
   std::vector<std::uint8_t> data;  // row-major: (y * width + x) * channels + c
 };
 
