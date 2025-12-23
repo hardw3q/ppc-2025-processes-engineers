@@ -86,12 +86,7 @@ Image ApplyGaussian3x3Clamp(const Image &in) {
 }
 
 Image MakeImage(int w, int h, int ch, const std::vector<std::uint8_t> &data) {
-  Image img;
-  img.width = w;
-  img.height = h;
-  img.channels = ch;
-  img.data = data;
-  return img;
+  return Image{w, h, ch, data};
 }
 
 }  // namespace
