@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <ostream>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -19,6 +20,11 @@ struct Image {
 
   Image(int w, int h, int ch, std::vector<std::uint8_t> d) : width(w), height(h), channels(ch), data(std::move(d)) {}
 };
+
+inline void PrintTo(const Image &img, std::ostream *os) {
+  *os << "Image{width=" << img.width << ", height=" << img.height << ", channels=" << img.channels
+      << ", data_size=" << img.data.size() << "}";
+}
 
 using InType = Image;
 using OutType = Image;
